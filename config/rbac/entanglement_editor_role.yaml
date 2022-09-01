@@ -1,0 +1,24 @@
+# permissions for end users to edit entanglements.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: entanglement-editor-role
+rules:
+- apiGroups:
+  - entangle.c3os-x.io
+  resources:
+  - entanglements
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - entangle.c3os-x.io
+  resources:
+  - entanglements/status
+  verbs:
+  - get

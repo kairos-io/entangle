@@ -1,0 +1,20 @@
+# permissions for end users to view entanglements.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: entanglement-viewer-role
+rules:
+- apiGroups:
+  - entangle.c3os-x.io
+  resources:
+  - entanglements
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - entangle.c3os-x.io
+  resources:
+  - entanglements/status
+  verbs:
+  - get

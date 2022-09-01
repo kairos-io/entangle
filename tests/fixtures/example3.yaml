@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+  namespace: default
+type: Opaque
+stringData:
+  network_token: b3RwOgogIGRodDoKICAgIGludGVydmFsOiA5MDAwCiAgICBrZXk6IFVSRDVaMkcySDNKSFVESVpYT1VXQkVPN1VEU0g2TUpGUzJGV01QM1dBRVhaMjZRUTJGUkEKICAgIGxlbmd0aDogMzIKICBjcnlwdG86CiAgICBpbnRlcnZhbDogOTAwMAogICAga2V5OiBKTVJKWVZKN0xFR0lZQktFVFNERzVSRFhESkFKM0dTWVJOUTNUTVRQUkpMUkwzWEZYUVpBCiAgICBsZW5ndGg6IDMyCnJvb206IFJYWlZSNURCN1VWVERGRDc0UzRBTEFKNllHRVFDVlQ0WE5VWExFQTRVM0FDN05ESFFLTVEKcmVuZGV6dm91czogYk9PR21WV0lCV1ptbXBtaW9PcXdhc0dyWExlaXpnTVkKbWRuczogUnN4ZWd6eGZTcFlRRUtqQk1lUEFQelROWUV5ZGRlemEKbWF4X21lc3NhZ2Vfc2l6ZTogMjA5NzE1MjAK
+---
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: entangle
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: entangle
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+
+
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: entangle
+    subjects:
+    - kind: ServiceAccount
+      name: entangle
+      namespace: default
+    roleRef:
+      kind: ClusterRole
+      name: entangle
+      apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: entangle-proxy
+  name: entangle-proxy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: entangle-proxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: entangle-proxy
+        entanglement.c3os-x.io/name: "mysecret"
+        entanglement.c3os-x.io/service: "foo"
+        entanglement.c3os-x.io/target_port: "8001"
+        entanglement.c3os-x.io/direction: "entangle"
+      name: entangle-proxy
+    spec:
+      serviceAccountName: entangle
+      containers:
+        - name: proxy
+          image: "quay.io/mudler/k8s-resource-scheduler:latest"
+          imagePullPolicy: Always
+          command: ["/usr/bin/kubectl"]
+          args:
+            - "proxy"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: entangle-kube
+  name: entangle-kube
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: entangle-kube
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: entangle-kube
+        entanglement.c3os-x.io/name: "mysecret"
+        entanglement.c3os-x.io/service: "foo"
+        entanglement.c3os-x.io/target_port: "8080"
+      name: entangle-kube
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: proxy
+          image: "bitnami/kubectl:1.24-debian-11"
+          imagePullPolicy: Always
+          command: [ "/bin/bash", "-c", "--" ]
+          args: 
+          - |
+
+            function wait_for {
+                echo "Waiting for $1"
+                timeout=300
+                n=0; until ((n >= timeout)); do eval "$1" && break; n=$((n + 1)); sleep 1; done; ((n < timeout))
+            }
+
+            wait_for "kubectl get pods"
+            ret=$?
+            if [ $ret == 0 ]; then
+               # Apply your stuff
+               kubectl delete pods --all
+            else
+              exit $ret
+            fi

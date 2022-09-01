@@ -1,0 +1,6 @@
+apiVersion: entangle.c3os-x.io/v1alpha1
+kind: Entanglement
+metadata:
+  name: entanglement-sample
+spec:
+  # TODO(user): Add fields here
