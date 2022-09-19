@@ -28,14 +28,14 @@ type Webhook struct {
 }
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
-//+kubebuilder:webhook:verbs=create;update,path=/mutate-entangle-c3os-x-io-v1alpha1-entanglement,mutating=true,failurePolicy=ignore,sideEffects=None,groups=core,resources=pods,versions=v1,name=mentanglement.kb.io,admissionReviewVersions={v1,v1alpha1}
+//+kubebuilder:webhook:verbs=create;update,path=/mutate-entangle-kairos-x-io-v1alpha1-entanglement,mutating=true,failurePolicy=ignore,sideEffects=None,groups=core,resources=pods,versions=v1,name=mentanglement.kb.io,admissionReviewVersions={v1,v1alpha1}
 
 var (
-	EntanglementNameLabel      = "entanglement.c3os-x.io/name"
-	EntanglementServiceLabel   = "entanglement.c3os-x.io/service"
-	EntanglementDirectionLabel = "entanglement.c3os-x.io/direction"
-	EntanglementPortLabel      = "entanglement.c3os-x.io/target_port"
-	EntanglementHostLabel      = "entanglement.c3os-x.io/host"
+	EntanglementNameLabel      = "entanglement.kairos.io/name"
+	EntanglementServiceLabel   = "entanglement.kairos.io/service"
+	EntanglementDirectionLabel = "entanglement.kairos.io/direction"
+	EntanglementPortLabel      = "entanglement.kairos.io/target_port"
+	EntanglementHostLabel      = "entanglement.kairos.io/host"
 )
 
 func (w *Webhook) SetupWebhookWithManager(mgr manager.Manager) error {
@@ -47,7 +47,7 @@ func (w *Webhook) SetupWebhookWithManager(mgr manager.Manager) error {
 
 	return webhook.NewGenericWebhookManagedBy(mgr).
 		For(&corev1.Pod{}).
-		WithMutatePath("/mutate-entangle-c3os-x-io-v1alpha1-entanglement").
+		WithMutatePath("/mutate-entangle-kairos-x-io-v1alpha1-entanglement").
 		Complete(w)
 }
 

@@ -5,8 +5,8 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 0.0.1
 
-IMG ?= quay.io/c3os/entangle:test
-export CLUSTER_NAME?=c3os-entangle-e2e
+IMG ?= quay.io/kairos/entangle:test
+export CLUSTER_NAME?=kairos-entangle-e2e
 export ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # CHANNELS define the bundle channels used in the bundle.
@@ -32,8 +32,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# c3os-x.io/entangle-bundle:$VERSION and c3os-x.io/entangle-catalog:$VERSION.
-IMAGE_TAG_BASE ?= c3os-x.io/entangle
+# kairos.io/entangle-bundle:$VERSION and kairos.io/entangle-catalog:$VERSION.
+IMAGE_TAG_BASE ?= kairos.io/entangle
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)

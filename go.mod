@@ -1,4 +1,4 @@
-module github.com/c3os-io/entangle
+module github.com/kairos-io/entangle
 
 go 1.18
 

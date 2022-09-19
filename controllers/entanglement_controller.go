@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	entanglev1alpha1 "github.com/c3os-io/entangle/api/v1alpha1"
+	entanglev1alpha1 "github.com/kairos-io/entangle/api/v1alpha1"
 )
 
 // EntanglementReconciler reconciles a Entanglement object
@@ -41,9 +41,9 @@ type EntanglementReconciler struct {
 	EntangleServiceImage string
 }
 
-//+kubebuilder:rbac:groups=entangle.c3os-x.io,resources=entanglements,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=entangle.c3os-x.io,resources=entanglements/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=entangle.c3os-x.io,resources=entanglements/finalizers,verbs=update
+//+kubebuilder:rbac:groups=entangle.kairos.io,resources=entanglements,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=entangle.kairos.io,resources=entanglements/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=entangle.kairos.io,resources=entanglements/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=create;get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=create;get;list;watch

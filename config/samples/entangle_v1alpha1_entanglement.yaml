@@ -1,4 +1,4 @@
-apiVersion: entangle.c3os-x.io/v1alpha1
+apiVersion: entangle.kairos.io/v1alpha1
 kind: Entanglement
 metadata:
   name: entanglement-sample

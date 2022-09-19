@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	entanglev1alpha1 "github.com/c3os-io/entangle/api/v1alpha1"
+	entanglev1alpha1 "github.com/kairos-io/entangle/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -128,6 +128,6 @@ func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement
 
 func genDeploymentLabel(s string) map[string]string {
 	return map[string]string{
-		"entanglement.c3os-x.io": s,
+		"entanglement.kairos.io": s,
 	}
 }

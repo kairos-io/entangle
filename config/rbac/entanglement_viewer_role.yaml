@@ -5,7 +5,7 @@ metadata:
   name: entanglement-viewer-role
 rules:
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements/status
   verbs:

@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	entanglev1alpha1 "github.com/c3os-io/entangle/api/v1alpha1"
-	"github.com/c3os-io/entangle/controllers"
-	webhooks "github.com/c3os-io/entangle/controllers/webhooks"
+	entanglev1alpha1 "github.com/kairos-io/entangle/api/v1alpha1"
+	"github.com/kairos-io/entangle/controllers"
+	webhooks "github.com/kairos-io/entangle/controllers/webhooks"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -76,7 +76,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "680ae91e.c3os-x.io",
+		LeaderElectionID:       "680ae91e.kairos.io",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

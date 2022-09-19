@@ -36,7 +36,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements
   verbs:
@@ -48,13 +48,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements/finalizers
   verbs:
   - update
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements/status
   verbs:

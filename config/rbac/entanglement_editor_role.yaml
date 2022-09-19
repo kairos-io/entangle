@@ -5,7 +5,7 @@ metadata:
   name: entanglement-editor-role
 rules:
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - entangle.c3os-x.io
+  - entangle.kairos.io
   resources:
   - entanglements/status
   verbs:

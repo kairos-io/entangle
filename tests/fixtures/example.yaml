@@ -23,10 +23,10 @@ spec:
     metadata:
       labels:
         app: entangle-proxy
-        entanglement.c3os-x.io/name: "mysecret"
-        entanglement.c3os-x.io/service: "foo"
-        entanglement.c3os-x.io/target_port: "8001"
-        entanglement.c3os-x.io/direction: "entangle"
+        entanglement.kairos.io/name: "mysecret"
+        entanglement.kairos.io/service: "foo"
+        entanglement.kairos.io/target_port: "8001"
+        entanglement.kairos.io/direction: "entangle"
       name: entangle-proxy
     spec:
       containers:
@@ -37,7 +37,7 @@ spec:
           args:
             - "proxy"
 ---
-apiVersion: entangle.c3os-x.io/v1alpha1
+apiVersion: entangle.kairos.io/v1alpha1
 kind: Entanglement
 metadata:
   name: test
