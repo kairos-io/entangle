@@ -52,32 +52,42 @@ func (w *Webhook) SetupWebhookWithManager(mgr manager.Manager) error {
 }
 
 func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object runtime.Object) admission.Response {
+
 	_ = log.FromContext(ctx)
 
 	pod := object.(*corev1.Pod)
-	entanglementName, exists := pod.Labels[EntanglementNameLabel]
+
+	// Let user use both label and annotations
+	info := pod.Labels
+
+	// Annotations take precedence
+	for ann, v := range pod.Annotations {
+		info[ann] = v
+	}
+
+	entanglementName, exists := info[EntanglementNameLabel]
 	if !exists {
 		return admission.Allowed("")
 	}
 
-	entanglementPort, exists := pod.Labels[EntanglementPortLabel]
+	entanglementPort, exists := info[EntanglementPortLabel]
 	if !exists {
 		return admission.Allowed("")
 	}
 
 	cmd := "service-connect"
-	entanglementDirection, exists := pod.Labels[EntanglementDirectionLabel]
+	entanglementDirection, exists := info[EntanglementDirectionLabel]
 	if exists && entanglementDirection == "entangle" {
 		cmd = "service-add"
 	}
 
 	host := "127.0.0.1"
-	entanglementHost, exists := pod.Labels[EntanglementHostLabel]
+	entanglementHost, exists := info[EntanglementHostLabel]
 	if exists && entanglementHost != "" {
 		host = entanglementHost
 	}
 
-	entanglementService, exists := pod.Labels[EntanglementServiceLabel]
+	entanglementService, exists := info[EntanglementServiceLabel]
 	if !exists {
 		return admission.Allowed("")
 	}
