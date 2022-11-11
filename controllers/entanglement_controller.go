@@ -37,8 +37,8 @@ import (
 type EntanglementReconciler struct {
 	clientSet *kubernetes.Clientset
 	client.Client
-	Scheme               *runtime.Scheme
-	EntangleServiceImage string
+	Scheme                         *runtime.Scheme
+	EntangleServiceImage, LogLevel string
 }
 
 //+kubebuilder:rbac:groups=entangle.kairos.io,resources=entanglements,verbs=get;list;watch;create;update;patch;delete
@@ -70,7 +70,7 @@ func (r *EntanglementReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	desiredDeployment, err := r.genDeployment(ent)
+	desiredDeployment, err := r.genDeployment(ent,r.LogLevel)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

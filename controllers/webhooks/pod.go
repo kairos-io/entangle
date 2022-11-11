@@ -24,7 +24,7 @@ type Webhook struct {
 	clientSet *kubernetes.Clientset
 	Scheme    *runtime.Scheme
 
-	SidecarImage string
+	SidecarImage, LogLevel string
 }
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
@@ -109,7 +109,7 @@ func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object 
 	servingContainer := corev1.Container{
 		ImagePullPolicy: corev1.PullAlways,
 		Command:         []string{"/usr/bin/edgevpn"},
-		Args:            []string{cmd, entanglementService, fmt.Sprintf("%s:%s", host, entanglementPort)},
+		Args:            []string{cmd, entanglementService, fmt.Sprintf("%s:%s", host, entanglementPort), "--log-level", w.LogLevel},
 		Env: []corev1.EnvVar{
 			{
 				Name: "EDGEVPNTOKEN",

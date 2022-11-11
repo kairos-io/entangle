@@ -22,7 +22,7 @@ func genOwner(ent entanglev1alpha1.Entanglement) []metav1.OwnerReference {
 	}
 }
 
-func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement) (*appsv1.Deployment, error) {
+func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement, logLevel string) (*appsv1.Deployment, error) {
 	objMeta := metav1.ObjectMeta{
 		Name:            ent.Name,
 		Namespace:       ent.Namespace,
@@ -96,9 +96,9 @@ func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement
 	}
 
 	if ent.Spec.ServiceRef != nil {
-		expose.Args = []string{cmd, "--log-level", "debug", ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", fmt.Sprintf("%s.svc.cluster.local", svc.Name), ent.Spec.Port)}
+		expose.Args = []string{cmd, "--log-level", logLevel, ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", fmt.Sprintf("%s.svc.cluster.local", svc.Name), ent.Spec.Port)}
 	} else {
-		expose.Args = []string{cmd, "--log-level", "debug", ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", ent.Spec.Host, ent.Spec.Port)}
+		expose.Args = []string{cmd, "--log-level", logLevel, ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", ent.Spec.Host, ent.Spec.Port)}
 	}
 
 	pod := v1.PodSpec{

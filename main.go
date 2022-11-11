@@ -57,8 +57,13 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var serviceImage string
+	var logLevel string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
+	flag.StringVar(&serviceImage, "service-image", defaultImage, "The image used to create services.")
+	flag.StringVar(&logLevel, "service-log-level", "debug", "The log level of the sidecar container.")
+
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
@@ -97,15 +102,17 @@ func main() {
 	if err = (&controllers.EntanglementReconciler{
 		Client:               mgr.GetClient(),
 		Scheme:               mgr.GetScheme(),
-		EntangleServiceImage: defaultImage,
+		EntangleServiceImage: serviceImage,
+		LogLevel:             logLevel,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Entanglement")
 		os.Exit(1)
 	}
 	if err = (&webhooks.Webhook{
 		Client:       mgr.GetClient(),
-		SidecarImage: defaultImage,
+		SidecarImage: serviceImage,
 		Scheme:       mgr.GetScheme(),
+		LogLevel:     logLevel,
 	}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Pod")
 		os.Exit(1)
