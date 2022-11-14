@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,6 +37,7 @@ var (
 	EntanglementDirectionLabel = "entanglement.kairos.io/direction"
 	EntanglementPortLabel      = "entanglement.kairos.io/target_port"
 	EntanglementHostLabel      = "entanglement.kairos.io/host"
+	EnvPrefix                  = "entanglement.kairos.io/env."
 )
 
 func (w *Webhook) SetupWebhookWithManager(mgr manager.Manager) error {
@@ -68,6 +70,26 @@ func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object 
 	entanglementName, exists := info[EntanglementNameLabel]
 	if !exists {
 		return admission.Allowed("")
+	}
+
+	envs := []corev1.EnvVar{
+		{
+			Name: "EDGEVPNTOKEN",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					Key: "network_token",
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: entanglementName,
+					},
+				},
+			},
+		}}
+
+	for k, v := range info {
+		if strings.HasPrefix(k, EnvPrefix) {
+			env := strings.ReplaceAll(k, EnvPrefix, "")
+			envs = append(envs, corev1.EnvVar{Name: env, Value: v})
+		}
 	}
 
 	entanglementPort, exists := info[EntanglementPortLabel]
@@ -110,19 +132,7 @@ func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object 
 		ImagePullPolicy: corev1.PullAlways,
 		Command:         []string{"/usr/bin/edgevpn"},
 		Args:            []string{cmd, entanglementService, fmt.Sprintf("%s:%s", host, entanglementPort), "--log-level", w.LogLevel},
-		Env: []corev1.EnvVar{
-			{
-				Name: "EDGEVPNTOKEN",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						Key: "network_token",
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: entanglementName,
-						},
-					},
-				},
-			},
-		},
+		Env:             envs,
 		SecurityContext: &corev1.SecurityContext{Privileged: &privileged},
 		Name:            "entanglement",
 		Image:           w.SidecarImage,

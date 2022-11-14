@@ -29,13 +29,14 @@ type EntanglementSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	ServiceUUID string  `json:"serviceUUID,omitempty"`
-	ServiceRef  *string `json:"serviceRef,omitempty"`
-	SecretRef   *string `json:"secretRef,omitempty"`
-	Host        string  `json:"host,omitempty"`
-	Port        string  `json:"port,omitempty"`
-	HostNetwork bool    `json:"hostNetwork,omitempty"`
-	Inbound     bool    `json:"inbound,omitempty"`
+	ServiceUUID string      `json:"serviceUUID,omitempty"`
+	ServiceRef  *string     `json:"serviceRef,omitempty"`
+	SecretRef   *string     `json:"secretRef,omitempty"`
+	Host        string      `json:"host,omitempty"`
+	Port        string      `json:"port,omitempty"`
+	HostNetwork bool        `json:"hostNetwork,omitempty"`
+	Inbound     bool        `json:"inbound,omitempty"`
+	Envs        []v1.EnvVar `json:"env,omitempty"`
 	// +kubebuilder:validation:Optional
 	ServiceSpec *v1.ServiceSpec `json:"serviceSpec,omitEmpty"`
 }

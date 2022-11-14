@@ -40,25 +40,26 @@ func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement
 		}
 	}
 
+	v := ent.Spec.Envs
+	v = append(v, v1.EnvVar{
+		Name: "EDGEVPNTOKEN",
+		ValueFrom: &v1.EnvVarSource{
+			SecretKeyRef: &v1.SecretKeySelector{
+				Key: "network_token",
+				LocalObjectReference: v1.LocalObjectReference{
+					Name: *ent.Spec.SecretRef,
+				},
+			},
+		},
+	})
+
 	expose := v1.Container{
 		ImagePullPolicy: v1.PullAlways,
 		SecurityContext: &v1.SecurityContext{Privileged: &privileged},
 		Name:            "entanglement",
 		Image:           r.EntangleServiceImage,
-		Env: []v1.EnvVar{
-			{
-				Name: "EDGEVPNTOKEN",
-				ValueFrom: &v1.EnvVarSource{
-					SecretKeyRef: &v1.SecretKeySelector{
-						Key: "network_token",
-						LocalObjectReference: v1.LocalObjectReference{
-							Name: *ent.Spec.SecretRef,
-						},
-					},
-				},
-			},
-		},
-		Command: []string{"/usr/bin/edgevpn"},
+		Env:             v,
+		Command:         []string{"/usr/bin/edgevpn"},
 	}
 
 	cmd := "service-add"

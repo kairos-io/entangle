@@ -98,6 +98,13 @@ func (in *EntanglementSpec) DeepCopyInto(out *EntanglementSpec) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.Envs != nil {
+		in, out := &in.Envs, &out.Envs
+		*out = make([]v1.EnvVar, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
+	}
 	if in.ServiceSpec != nil {
 		in, out := &in.ServiceSpec, &out.ServiceSpec
 		*out = new(v1.ServiceSpec)
