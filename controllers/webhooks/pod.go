@@ -35,6 +35,7 @@ var (
 	EntanglementNameLabel      = "entanglement.kairos.io/name"
 	EntanglementServiceLabel   = "entanglement.kairos.io/service"
 	EntanglementDirectionLabel = "entanglement.kairos.io/direction"
+	EntanglementNetHost        = "entanglement.kairos.io/nethost"
 	EntanglementPortLabel      = "entanglement.kairos.io/target_port"
 	EntanglementHostLabel      = "entanglement.kairos.io/host"
 	EnvPrefix                  = "entanglement.kairos.io/env."
@@ -54,7 +55,6 @@ func (w *Webhook) SetupWebhookWithManager(mgr manager.Manager) error {
 }
 
 func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object runtime.Object) admission.Response {
-
 	_ = log.FromContext(ctx)
 
 	pod := object.(*corev1.Pod)
@@ -115,6 +115,15 @@ func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object 
 	}
 
 	podCopy := pod.DeepCopy()
+
+	hostNetwork, exists := info[EntanglementNetHost]
+	// By default it injects hostnetwork, however if set to false it does enforces it to false
+	if exists && hostNetwork == "false" {
+		podCopy.Spec.HostNetwork = false
+	} else {
+		podCopy.Spec.HostNetwork = true
+	}
+
 	secret, err := w.clientSet.CoreV1().Secrets(request.Namespace).Get(context.Background(), entanglementName, v1.GetOptions{})
 	if err != nil || secret == nil {
 		return admission.Denied("entanglement secret not found:  " + entanglementName + err.Error())
