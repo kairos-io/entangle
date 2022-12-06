@@ -60,11 +60,16 @@ func (w *Webhook) Mutate(ctx context.Context, request admission.Request, object 
 	pod := object.(*corev1.Pod)
 
 	// Let user use both label and annotations
-	info := pod.Labels
+	info := make(map[string]string)
 
 	// Annotations take precedence
-	for ann, v := range pod.Annotations {
-		info[ann] = v
+	for k, v := range pod.Labels {
+		info[k] = v
+	}
+
+	// Annotations take precedence
+	for k, v := range pod.Annotations {
+		info[k] = v
 	}
 
 	entanglementName, exists := info[EntanglementNameLabel]
