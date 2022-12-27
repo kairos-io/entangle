@@ -13,7 +13,7 @@ webhooks:
       name: webhook-service
       namespace: system
       path: /mutate-entangle-kairos-x-io-v1alpha1-entanglement
-  failurePolicy: Ignore
+  failurePolicy: Fail
   name: mentanglement.kb.io
   rules:
   - apiGroups:

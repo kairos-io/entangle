@@ -29,7 +29,7 @@ type Webhook struct {
 }
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
-//+kubebuilder:webhook:verbs=create;update,path=/mutate-entangle-kairos-x-io-v1alpha1-entanglement,mutating=true,failurePolicy=ignore,sideEffects=None,groups=core,resources=pods,versions=v1,name=mentanglement.kb.io,admissionReviewVersions={v1,v1alpha1}
+//+kubebuilder:webhook:verbs=create;update,path=/mutate-entangle-kairos-x-io-v1alpha1-entanglement,mutating=true,failurePolicy=fail,sideEffects=None,groups=core,resources=pods,versions=v1,name=mentanglement.kb.io,admissionReviewVersions={v1,v1alpha1}
 
 var (
 	EntanglementNameLabel      = "entanglement.kairos.io/name"
