@@ -19,4 +19,13 @@ resources:
   webhooks:
     defaulting: true
     webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kairos.io
+  group: entangle
+  kind: VPN
+  path: github.com/kairos-io/entangle/api/v1alpha1
+  version: v1alpha1
 version: "3"

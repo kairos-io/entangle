@@ -118,6 +118,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.VPNReconciler{
+		Client:               mgr.GetClient(),
+		EntangleServiceImage: serviceImage,
+		Scheme:               mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "VPN")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

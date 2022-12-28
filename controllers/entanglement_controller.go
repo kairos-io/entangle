@@ -70,7 +70,7 @@ func (r *EntanglementReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	desiredDeployment, err := r.genDeployment(ent,r.LogLevel)
+	desiredDeployment, err := r.genDeployment(ent, r.LogLevel)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

@@ -26,6 +26,18 @@ rules:
 - apiGroups:
   - apps
   resources:
+  - daemonsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
   - deployments
   verbs:
   - create
@@ -57,6 +69,32 @@ rules:
   - entangle.kairos.io
   resources:
   - entanglements/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - entangle.kairos.io
+  resources:
+  - vpns
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - entangle.kairos.io
+  resources:
+  - vpns/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - entangle.kairos.io
+  resources:
+  - vpns/status
   verbs:
   - get
   - patch

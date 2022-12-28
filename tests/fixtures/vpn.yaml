@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+  namespace: entangle-system
+type: Opaque
+stringData:
+  network_token: b3RwOgogIGRodDoKICAgIGludGVydmFsOiA5MDAwCiAgICBrZXk6IFVSRDVaMkcySDNKSFVESVpYT1VXQkVPN1VEU0g2TUpGUzJGV01QM1dBRVhaMjZRUTJGUkEKICAgIGxlbmd0aDogMzIKICBjcnlwdG86CiAgICBpbnRlcnZhbDogOTAwMAogICAga2V5OiBKTVJKWVZKN0xFR0lZQktFVFNERzVSRFhESkFKM0dTWVJOUTNUTVRQUkpMUkwzWEZYUVpBCiAgICBsZW5ndGg6IDMyCnJvb206IFJYWlZSNURCN1VWVERGRDc0UzRBTEFKNllHRVFDVlQ0WE5VWExFQTRVM0FDN05ESFFLTVEKcmVuZGV6dm91czogYk9PR21WV0lCV1ptbXBtaW9PcXdhc0dyWExlaXpnTVkKbWRuczogUnN4ZWd6eGZTcFlRRUtqQk1lUEFQelROWUV5ZGRlemEKbWF4X21lc3NhZ2Vfc2l6ZTogMjA5NzE1MjAK
+---
+apiVersion: entangle.kairos.io/v1alpha1
+kind: VPN
+metadata:
+  name: test2
+  namespace: entangle-system
+spec:
+   secretRef: "mysecret"

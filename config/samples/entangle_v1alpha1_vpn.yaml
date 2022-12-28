@@ -1,0 +1,12 @@
+apiVersion: entangle.kairos.io/v1alpha1
+kind: VPN
+metadata:
+  labels:
+    app.kubernetes.io/name: vpn
+    app.kubernetes.io/instance: vpn-sample
+    app.kubernetes.io/part-of: entangle
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: entangle
+  name: vpn-sample
+spec:
+  # TODO(user): Add fields here
