@@ -40,6 +40,10 @@ func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement
 		}
 	}
 
+	if ent.Spec.SecretRef == nil {
+		return nil, fmt.Errorf("secretRef is required")
+	}
+
 	v := ent.Spec.Envs
 	v = append(v, v1.EnvVar{
 		Name: "EDGEVPNTOKEN",
