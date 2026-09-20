@@ -7,6 +7,7 @@ import (
 	entanglev1alpha1 "github.com/kairos-io/entangle/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -131,4 +132,34 @@ func genDeploymentLabel(s string) map[string]string {
 	return map[string]string{
 		"entanglement.kairos.io": s,
 	}
+}
+
+// deploymentNeedsUpdate reports whether the live Deployment still carries the
+// configuration the Entanglement asks for. Only the pod template is compared:
+// everything the spec feeds into the sidecar lands there, and the rest of the
+// object belongs to the API server and to the Deployment controller.
+func deploymentNeedsUpdate(desired, live *appsv1.Deployment) bool {
+	desiredPod := desired.Spec.Template.Spec
+	livePod := live.Spec.Template.Spec
+
+	if desiredPod.HostNetwork != livePod.HostNetwork {
+		return true
+	}
+
+	if len(desiredPod.Containers) != len(livePod.Containers) {
+		return true
+	}
+
+	for i, want := range desiredPod.Containers {
+		got := livePod.Containers[i]
+		if want.Name != got.Name ||
+			want.Image != got.Image ||
+			!equality.Semantic.DeepEqual(want.Command, got.Command) ||
+			!equality.Semantic.DeepEqual(want.Args, got.Args) ||
+			!equality.Semantic.DeepEqual(want.Env, got.Env) {
+			return true
+		}
+	}
+
+	return false
 }

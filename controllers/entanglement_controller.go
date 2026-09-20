@@ -114,9 +114,8 @@ func (r *EntanglementReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{Requeue: true}, err
 	}
 
-	// If args or env are missing, update it
-	if desiredDeployment.Spec.Template.Spec.Containers[0].Args[0] != deployment.Spec.Template.Spec.Containers[0].Args[0] ||
-		desiredDeployment.Spec.Template.Spec.Containers[0].Env[0] != deployment.Spec.Template.Spec.Containers[0].Env[0] {
+	// If the live sidecar no longer matches the spec, update it
+	if deploymentNeedsUpdate(desiredDeployment, deployment) {
 		deployment, err = r.clientSet.AppsV1().Deployments(req.Namespace).Update(ctx, desiredDeployment, v1.UpdateOptions{})
 		if err != nil {
 			logger.Error(err, "Failed while updating deployment")
