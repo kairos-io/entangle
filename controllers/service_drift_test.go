@@ -182,3 +182,49 @@ func TestReconciledServiceNeverMovesTheClusterIP(t *testing.T) {
 		t.Fatalf("type = %q, want NodePort", out.Spec.Type)
 	}
 }
+
+// A named port carries the targetPort the API server defaulted from the old
+// port number. Moving the port must not keep that stale value, or traffic goes
+// to the port the user moved away from.
+func TestMergeServicePortsDropsATargetPortDefaultedFromTheOldPort(t *testing.T) {
+	live := []corev1.ServicePort{
+		{Name: "http", Port: 80, TargetPort: intstr.FromInt(80), NodePort: 31234},
+	}
+
+	out := mergeServicePorts([]corev1.ServicePort{{Name: "http", Port: 9000}}, live)
+
+	if len(out) != 1 {
+		t.Fatalf("got %d ports, want 1", len(out))
+	}
+	if out[0].TargetPort != (intstr.IntOrString{}) {
+		t.Errorf("targetPort = %v, want it left empty so the API server defaults it to 9000", out[0].TargetPort)
+	}
+	if out[0].NodePort != 31234 {
+		t.Errorf("nodePort = %d, want the allocated 31234 kept", out[0].NodePort)
+	}
+}
+
+// The user's own targetPort is desired, not live, so a port move keeps it.
+func TestMergeServicePortsKeepsAnExplicitTargetPortAcrossAPortMove(t *testing.T) {
+	live := []corev1.ServicePort{{Name: "http", Port: 80, TargetPort: intstr.FromInt(80)}}
+
+	out := mergeServicePorts([]corev1.ServicePort{
+		{Name: "http", Port: 9000, TargetPort: intstr.FromString("web")},
+	}, live)
+
+	if out[0].TargetPort != intstr.FromString("web") {
+		t.Errorf("targetPort = %v, want the spec's own \"web\"", out[0].TargetPort)
+	}
+}
+
+// While the port is unchanged the live targetPort is still what the API server
+// filled in for this port, so it is carried over and the merge stays a no-op.
+func TestMergeServicePortsKeepsTheTargetPortWhileThePortIsUnchanged(t *testing.T) {
+	live := []corev1.ServicePort{{Name: "http", Port: 80, TargetPort: intstr.FromInt(8080)}}
+
+	out := mergeServicePorts([]corev1.ServicePort{{Name: "http", Port: 80}}, live)
+
+	if out[0].TargetPort != intstr.FromInt(8080) {
+		t.Errorf("targetPort = %v, want the live 8080 kept", out[0].TargetPort)
+	}
+}

@@ -89,6 +89,14 @@ func mergeServiceSpec(desired, live corev1.ServiceSpec) corev1.ServiceSpec {
 // user left blank: the allocated node port, and the protocol, target port and
 // application protocol it defaults. Ports are matched by name, and by port
 // number for the single-port case where the name is empty.
+//
+// The target port is only carried over while the port number itself is
+// unchanged. The API server defaults an empty targetPort to the port, so on a
+// named port the live value is usually just an echo of the *old* port; copying
+// it across a port move would leave the Service pointing at the port the user
+// just moved away from, while the same spec created fresh would follow. A
+// targetPort the user does set is never touched, because then desired carries
+// it and this branch is not taken.
 func mergeServicePorts(desired, live []corev1.ServicePort) []corev1.ServicePort {
 	out := make([]corev1.ServicePort, len(desired))
 	copy(out, desired)
@@ -104,7 +112,7 @@ func mergeServicePorts(desired, live []corev1.ServicePort) []corev1.ServicePort 
 		if out[i].Protocol == "" {
 			out[i].Protocol = l.Protocol
 		}
-		if out[i].TargetPort == (intstr.IntOrString{}) {
+		if out[i].TargetPort == (intstr.IntOrString{}) && l.Port == out[i].Port {
 			out[i].TargetPort = l.TargetPort
 		}
 		if out[i].AppProtocol == nil {
