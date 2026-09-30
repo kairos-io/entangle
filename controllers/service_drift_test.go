@@ -228,3 +228,59 @@ func TestMergeServicePortsKeepsTheTargetPortWhileThePortIsUnchanged(t *testing.T
 		t.Errorf("targetPort = %v, want the live 8080 kept", out[0].TargetPort)
 	}
 }
+
+// Dropping `type: NodePort` from the spec is not "no opinion": the API server
+// defaults an empty type to ClusterIP on create, so the same spec applied to a
+// live NodePort Service has to take it back to ClusterIP.
+func TestReconciledServiceTakesAnEmptyTypeBackToClusterIP(t *testing.T) {
+	live := &corev1.Service{Spec: corev1.ServiceSpec{
+		ClusterIP:             "10.96.0.10",
+		ClusterIPs:            []string{"10.96.0.10"},
+		Type:                  corev1.ServiceTypeNodePort,
+		ExternalTrafficPolicy: corev1.ServiceExternalTrafficPolicyTypeCluster,
+		Ports: []corev1.ServicePort{
+			{Name: "http", Port: 9000, TargetPort: intstr.FromInt(9000), NodePort: 30818},
+		},
+	}}
+	desired := &corev1.Service{Spec: corev1.ServiceSpec{
+		Ports: []corev1.ServicePort{{Name: "http", Port: 9000}},
+	}}
+
+	out, changed := reconciledService(desired, live)
+	if !changed {
+		t.Fatal("dropping the type is drift: the Service is still on NodePort")
+	}
+	if out.Spec.Type != corev1.ServiceTypeClusterIP {
+		t.Fatalf("type = %q, want ClusterIP, what the same spec gets on create", out.Spec.Type)
+	}
+	if out.Spec.ClusterIP != "10.96.0.10" {
+		t.Fatalf("clusterIP = %q, want it preserved: it is immutable", out.Spec.ClusterIP)
+	}
+	// The node port and the traffic policy go out unchanged on purpose. The API
+	// server drops both when the type stops needing them and the values did not
+	// move, and sending a cleared nodePort with a kept one elsewhere is how a
+	// node port gets reallocated by accident.
+	if out.Spec.Ports[0].NodePort != 30818 {
+		t.Errorf("nodePort = %d, want the allocated 30818 sent back unchanged", out.Spec.Ports[0].NodePort)
+	}
+}
+
+// The switch has to settle: once the Service is ClusterIP, a spec with no type
+// must read as a match, or the reconciler updates on every pass.
+func TestReconciledServiceWithAnEmptyTypeSettlesOnClusterIP(t *testing.T) {
+	live := &corev1.Service{Spec: corev1.ServiceSpec{
+		ClusterIP:  "10.96.0.10",
+		ClusterIPs: []string{"10.96.0.10"},
+		Type:       corev1.ServiceTypeClusterIP,
+		Ports: []corev1.ServicePort{
+			{Name: "http", Port: 9000, Protocol: corev1.ProtocolTCP, TargetPort: intstr.FromInt(9000)},
+		},
+	}}
+	desired := &corev1.Service{Spec: corev1.ServiceSpec{
+		Ports: []corev1.ServicePort{{Name: "http", Port: 9000}},
+	}}
+
+	if _, changed := reconciledService(desired, live); changed {
+		t.Fatal("a ClusterIP Service already matches a spec that names no type")
+	}
+}

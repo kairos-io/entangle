@@ -13,7 +13,8 @@ import (
 // It is a merge and not a replacement for two reasons. The API server assigns
 // ClusterIP, node ports and the IP families itself, and refuses an update that
 // changes them; and the user's serviceSpec is a partial object, so a field left
-// at its zero value means "no opinion", not "clear it". Merging both ways round
+// at its zero value means "no opinion", not "clear it". Type is the exception,
+// because the API server does not read it that way either. Merging both ways round
 // also keeps the comparison stable: after one update the merge is a no-op, so
 // the reconciler does not fight the API server's defaulting in a loop.
 func reconciledService(desired, live *corev1.Service) (*corev1.Service, bool) {
@@ -35,6 +36,13 @@ func mergeServiceSpec(desired, live corev1.ServiceSpec) corev1.ServiceSpec {
 	if len(desired.Selector) > 0 {
 		out.Selector = desired.Selector
 	}
+	// Type is the one field where an empty value is an opinion. The API server
+	// defaults it to ClusterIP on create, so a spec that drops `type: NodePort`
+	// has to take the live Service back to ClusterIP, the same as that spec
+	// gets when it is created fresh. The node port, the traffic policy and the
+	// health check node port ride along unchanged: the API server drops each of
+	// them itself once the type stops needing it and the value did not move.
+	out.Type = corev1.ServiceTypeClusterIP
 	if desired.Type != "" {
 		out.Type = desired.Type
 	}
