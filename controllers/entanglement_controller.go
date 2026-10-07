@@ -35,7 +35,7 @@ import (
 
 // EntanglementReconciler reconciles a Entanglement object
 type EntanglementReconciler struct {
-	clientSet *kubernetes.Clientset
+	clientSet kubernetes.Interface
 	client.Client
 	Scheme                         *runtime.Scheme
 	EntangleServiceImage, LogLevel string
@@ -46,7 +46,7 @@ type EntanglementReconciler struct {
 //+kubebuilder:rbac:groups=entangle.kairos.io,resources=entanglements/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=create;get;list;watch
-//+kubebuilder:rbac:groups="",resources=services,verbs=create;get;list;watch
+//+kubebuilder:rbac:groups="",resources=services,verbs=create;get;list;patch;update;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -95,6 +95,15 @@ func (r *EntanglementReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 		if err != nil {
 			return ctrl.Result{Requeue: true}, err
+		}
+
+		// The Service already exists. Edits to serviceSpec have to reach it too,
+		// otherwise the tunnel keeps serving whatever the first reconcile created.
+		if updated, changed := reconciledService(svc, sv); changed {
+			if _, err := r.clientSet.CoreV1().Services(req.Namespace).Update(ctx, updated, v1.UpdateOptions{}); err != nil {
+				logger.Error(err, "Failed while updating service")
+				return ctrl.Result{}, err
+			}
 		}
 	}
 
