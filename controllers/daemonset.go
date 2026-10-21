@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	entanglev1alpha1 "github.com/kairos-io/entangle/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -27,6 +29,10 @@ func (r *VPNReconciler) genDaemonset(ent entanglev1alpha1.VPN) (*appsv1.DaemonSe
 
 	privileged := true
 	serviceAccount := false
+
+	if ent.Spec.SecretRef == nil {
+		return nil, fmt.Errorf("secretRef is required")
+	}
 
 	v := ent.Spec.Env
 	v = append(v, v1.EnvVar{
