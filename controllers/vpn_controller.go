@@ -89,14 +89,16 @@ func (r *VPNReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		return ctrl.Result{Requeue: true}, err
 	}
 
-	// // If args or env are missing, update it
-	// if desiredDaemonset.{
-	// 	deployment, err = r.clientSet.AppsV1().Deployments(req.Namespace).Update(ctx, desiredDeployment, v1.UpdateOptions{})
-	// 	if err != nil {
-	// 		logger.Error(err, "Failed while updating deployment")
-	// 		return ctrl.Result{}, nil
-	// 	}
-	// }
+	// The DaemonSet already exists. Everything the VPN spec controls (the
+	// network token Secret it names, and the extra environment it asks for)
+	// only reaches the node through the pod template, so an edit to the VPN is
+	// lost unless the live DaemonSet is rewritten here.
+	if podSpecNeedsUpdate(desiredDaemonset.Spec.Template.Spec, daemonset.Spec.Template.Spec) {
+		if _, err := r.clientSet.AppsV1().DaemonSets(req.Namespace).Update(ctx, desiredDaemonset, v1.UpdateOptions{}); err != nil {
+			logger.Error(err, "Failed while updating daemonset")
+			return ctrl.Result{Requeue: true}, err
+		}
+	}
 
 	return ctrl.Result{}, nil
 }
