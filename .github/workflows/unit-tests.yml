@@ -1,0 +1,23 @@
+name: 'unit tests'
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+concurrency:
+  group: unit-tests-${{ github.head_ref || github.ref }}-${{ github.repository }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Run unit tests
+        run: make unit-tests

@@ -269,8 +269,8 @@ test_deps:
 	go install github.com/onsi/gomega/...
 
 .PHONY: unit-tests
-unit-tests: test_deps
-	ginkgo -r -v  --covermode=atomic --coverprofile=coverage.out -p -r ./pkg/...
+unit-tests:
+	go test -v -covermode=atomic -coverprofile=coverage.out ./...
 
 e2e-tests:
 	KUBE_VERSION=${KUBE_VERSION} $(ROOT_DIR)/script/test.sh

@@ -17,6 +17,7 @@ limitations under the License.
 package controllers
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -41,7 +42,17 @@ var cfg *rest.Config
 var k8sClient client.Client
 var testEnv *envtest.Environment
 
+// envtest needs a kube-apiserver and etcd on disk. Skip the suite when they are
+// not there, so that `go test ./...` still runs the plain unit tests.
+func envtestAvailable() bool {
+	return os.Getenv("KUBEBUILDER_ASSETS") != ""
+}
+
 func TestAPIs(t *testing.T) {
+	if !envtestAvailable() {
+		t.Skip("KUBEBUILDER_ASSETS is not set, run `make envtest` first")
+	}
+
 	RegisterFailHandler(Fail)
 
 	RunSpecsWithDefaultAndCustomReporters(t,
