@@ -97,7 +97,7 @@ func (r *EntanglementReconciler) genDeployment(ent entanglev1alpha1.Entanglement
 	}
 
 	if ent.Spec.ServiceRef != nil {
-		expose.Args = []string{cmd, "--log-level", logLevel, ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", fmt.Sprintf("%s.svc.cluster.local", svc.Name), ent.Spec.Port)}
+		expose.Args = []string{cmd, "--log-level", logLevel, ent.Spec.ServiceUUID, fmt.Sprintf("%s.%s.svc.cluster.local:%s", svc.Name, svc.Namespace, ent.Spec.Port)}
 	} else {
 		expose.Args = []string{cmd, "--log-level", logLevel, ent.Spec.ServiceUUID, fmt.Sprintf("%s:%s", ent.Spec.Host, ent.Spec.Port)}
 	}
